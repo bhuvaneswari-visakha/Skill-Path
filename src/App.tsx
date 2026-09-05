@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { UserSkillPathState, CareerId, SkillStatus, RoadmapItem } from './types';
+import { UserSkillPathState, CareerId, SkillStatus, RoadmapItem, UserProfile } from './types';
 import { CAREERS } from './data/careers';
 import { loadSavedState, saveState, clearSavedState, getDemoState, DEFAULT_STATE } from './utils/storage';
 import { analyzeSkillGap, generateInitialRoadmap } from './utils/roadmapGenerator';
@@ -10,6 +10,7 @@ import { SkillInput } from './components/SkillInput';
 import { SkillGapView } from './components/SkillGapView';
 import { RoadmapView } from './components/RoadmapView';
 import { DashboardView } from './components/DashboardView';
+import { AuthSection } from './components/AuthSection';
 import { SkillPathLogo } from './components/SkillPathLogo';
 
 export default function App() {
@@ -36,6 +37,32 @@ export default function App() {
   const handleNavigate = (view: UserSkillPathState['currentView']) => {
     setState((prev) => ({ ...prev, currentView: view }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Auth handlers
+  const handleAuthSuccess = (user: UserProfile) => {
+    setState((prev) => {
+      let careerIdToSet = prev.selectedCareerId;
+      if (!careerIdToSet && user.careerGoal) {
+        const found = CAREERS.find((c) => c.id === user.careerGoal);
+        if (found) {
+          careerIdToSet = found.id;
+        }
+      }
+
+      return {
+        ...prev,
+        currentUser: user,
+        selectedCareerId: careerIdToSet,
+      };
+    });
+  };
+
+  const handleLogout = () => {
+    setState((prev) => ({
+      ...prev,
+      currentUser: null,
+    }));
   };
 
   // Select Career
@@ -169,6 +196,7 @@ export default function App() {
         onNavigate={handleNavigate}
         onReset={handleReset}
         onLoadDemo={handleLoadDemo}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -177,6 +205,20 @@ export default function App() {
           <LandingHero
             onStart={() => handleNavigate('career-select')}
             onLoadDemo={handleLoadDemo}
+            currentUser={state.currentUser}
+            onAuthSuccess={handleAuthSuccess}
+            onLogout={handleLogout}
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {state.currentView === 'auth' && (
+          <AuthSection
+            currentUser={state.currentUser}
+            onAuthSuccess={handleAuthSuccess}
+            onLogout={handleLogout}
+            onNavigateToFlow={handleNavigate}
+            isStandaloneView={true}
           />
         )}
 

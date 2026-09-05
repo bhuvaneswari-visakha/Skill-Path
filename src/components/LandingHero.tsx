@@ -1,14 +1,34 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, Target, Sparkles, Compass, AlertCircle, TrendingUp, Layers, Check } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Target, Sparkles, Compass, AlertCircle, TrendingUp, Layers, Check, LogIn, UserCheck } from 'lucide-react';
 import { CAREERS } from '../data/careers';
 import { SkillPathLogo } from './SkillPathLogo';
+import { AuthSection } from './AuthSection';
+import { UserProfile, UserSkillPathState } from '../types';
 
 interface LandingHeroProps {
   onStart: () => void;
   onLoadDemo: () => void;
+  currentUser?: UserProfile | null;
+  onAuthSuccess?: (user: UserProfile) => void;
+  onLogout?: () => void;
+  onNavigate?: (view: UserSkillPathState['currentView']) => void;
 }
 
-export const LandingHero: React.FC<LandingHeroProps> = ({ onStart, onLoadDemo }) => {
+export const LandingHero: React.FC<LandingHeroProps> = ({
+  onStart,
+  onLoadDemo,
+  currentUser,
+  onAuthSuccess,
+  onLogout,
+  onNavigate,
+}) => {
+  const scrollToAuth = () => {
+    const el = document.getElementById('auth-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="w-full bg-[#09090b] text-[#fafafa]">
       {/* Hero Section */}
@@ -20,11 +40,18 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onStart, onLoadDemo })
               <SkillPathLogo variant="mark" size={84} className="shadow-2xl shadow-blue-600/30 transition-transform duration-300 group-hover:scale-105" />
             </div>
 
-            {/* Mission Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs sm:text-sm font-semibold mb-6 shadow-xs">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              <span>For Final-Year Students & Entry-Level Job Seekers</span>
-            </div>
+            {/* Mission Pill or Logged-In User Banner */}
+            {currentUser ? (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs sm:text-sm font-semibold mb-6 shadow-xs">
+                <UserCheck className="w-4 h-4 text-emerald-400" />
+                <span>Welcome back, {currentUser.name} • Signed In</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs sm:text-sm font-semibold mb-6 shadow-xs">
+                <Sparkles className="w-4 h-4 text-blue-400" />
+                <span>For Final-Year Students & Entry-Level Job Seekers</span>
+              </div>
+            )}
 
             {/* Main Hero Title */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
@@ -37,29 +64,40 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onStart, onLoadDemo })
             </p>
 
             {/* Primary & Secondary CTAs */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-xl">
               <button
                 id="hero-cta-button"
                 onClick={onStart}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl text-base font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/25 active:scale-95 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/25 active:scale-95 transition-all"
               >
                 <span>Build My SkillPath</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
               <button
                 id="hero-demo-button"
                 onClick={onLoadDemo}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold text-[#fafafa] bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] shadow-xs active:scale-95 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold text-[#fafafa] bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] shadow-xs active:scale-95 transition-all"
               >
-                <span>Explore Live Demo (Data Analyst)</span>
+                <span>Explore Live Demo</span>
               </button>
+
+              {!currentUser && (
+                <button
+                  id="hero-auth-button"
+                  onClick={scrollToAuth}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 shadow-xs active:scale-95 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In / Register</span>
+                </button>
+              )}
             </div>
 
             {/* Value Guarantees */}
             <div className="mt-10 pt-6 border-t border-[#27272a] flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm text-[#a1a1aa] font-medium">
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free & No Login Required
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free & Open to All Students
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 7 High-Demand Tech Careers
@@ -71,6 +109,14 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onStart, onLoadDemo })
           </div>
         </div>
       </section>
+
+      {/* Embedded Sign Up & Log In Portal directly on Landing Page */}
+      <AuthSection
+        currentUser={currentUser}
+        onAuthSuccess={(user) => onAuthSuccess?.(user)}
+        onLogout={() => onLogout?.()}
+        onNavigateToFlow={(target) => onNavigate?.(target)}
+      />
 
       {/* The Core Journey: 5 Steps Visual Flow */}
       <section className="py-14 bg-[#09090b] border-b border-[#27272a]">

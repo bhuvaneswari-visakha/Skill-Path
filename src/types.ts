@@ -65,8 +65,18 @@ export interface RoadmapStage {
   items: RoadmapItem[];
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  careerGoal?: string;
+  experienceLevel?: string;
+  joinedAt: string;
+}
+
 export interface UserSkillPathState {
-  currentView: 'landing' | 'career-select' | 'skills-setup' | 'skill-gap' | 'roadmap' | 'dashboard';
+  currentView: 'landing' | 'career-select' | 'skills-setup' | 'skill-gap' | 'roadmap' | 'dashboard' | 'auth';
+  currentUser?: UserProfile | null;
   selectedCareerId: CareerId | null;
   selectedSkills: string[];
   customSkills: string[];
