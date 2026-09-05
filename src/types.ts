@@ -75,7 +75,7 @@ export interface UserProfile {
 }
 
 export interface UserSkillPathState {
-  currentView: 'landing' | 'career-select' | 'skills-setup' | 'skill-gap' | 'roadmap' | 'dashboard' | 'auth';
+  currentView: 'landing' | 'career-select' | 'skills-setup' | 'skill-gap' | 'roadmap' | 'dashboard' | 'progress-track' | 'auth';
   currentUser?: UserProfile | null;
   selectedCareerId: CareerId | null;
   selectedSkills: string[];

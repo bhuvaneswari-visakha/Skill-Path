@@ -12,10 +12,14 @@ import {
   Target,
   GraduationCap,
   User,
-  LogOut
+  LogOut,
+  Lock,
+  LineChart
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { UserSkillPathState } from '../types';
 import { SkillPathLogo } from './SkillPathLogo';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavbarProps {
   state: UserSkillPathState;
@@ -23,16 +27,53 @@ interface NavbarProps {
   onReset: () => void;
   onLoadDemo: () => void;
   onLogout?: () => void;
+  onRequireAuth?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLoadDemo, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  state,
+  onNavigate,
+  onReset,
+  onLoadDemo,
+  onLogout,
+  onRequireAuth,
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [authAlertMessage, setAuthAlertMessage] = useState<string | null>(null);
+
+  const isAuthenticated = Boolean(state.currentUser);
   const hasSelectedCareer = Boolean(state.selectedCareerId);
   const hasRoadmap = state.roadmapItems.length > 0;
 
-  const handleMobileNavClick = (view: UserSkillPathState['currentView']) => {
+  const triggerAuthGatedNotice = () => {
+    setAuthAlertMessage('Please sign in or register to access this feature.');
+    setTimeout(() => setAuthAlertMessage(null), 3500);
+
+    if (onRequireAuth) {
+      onRequireAuth();
+    } else if (state.currentView === 'landing') {
+      const el = document.getElementById('auth-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        onNavigate('auth');
+      }
+    } else {
+      onNavigate('auth');
+    }
+  };
+
+  const handleProtectedNavigate = (view: UserSkillPathState['currentView']) => {
+    if (!isAuthenticated) {
+      triggerAuthGatedNotice();
+      return;
+    }
     onNavigate(view);
+  };
+
+  const handleMobileNavClick = (view: UserSkillPathState['currentView']) => {
     setIsMobileMenuOpen(false);
+    handleProtectedNavigate(view);
   };
 
   return (
@@ -48,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
             }}
             className="group flex items-center gap-3 text-left focus:outline-none"
           >
-            <SkillPathLogo variant="mark" size={40} className="shadow-lg shadow-blue-500/25" />
+            <SkillPathLogo variant="mark" size={40} className="shadow-lg shadow-blue-500/25 transition-transform duration-200 group-hover:scale-105" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-black tracking-tight text-[#fafafa] flex items-center">
@@ -75,75 +116,112 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
           </button>
         </div>
 
-        {/* Navigation Bar Links (Desktop / Landscape: hidden on mobile & tablet) */}
+        {/* Navigation Bar Links (Desktop / Landscape) */}
         <nav className="hidden lg:flex items-center gap-1 sm:gap-1.5 text-xs font-medium text-[#a1a1aa]">
+          {/* Career */}
           <button
             id="nav-link-career"
-            onClick={() => onNavigate('career-select')}
-            className={`px-2.5 py-1 rounded-lg transition-colors ${
-              state.currentView === 'career-select'
+            onClick={() => handleProtectedNavigate('career-select')}
+            title={!isAuthenticated ? 'Sign in to access Career selection' : 'Select target career'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+              !isAuthenticated
+                ? 'opacity-65 hover:opacity-100 hover:text-white cursor-pointer'
+                : state.currentView === 'career-select'
                 ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
                 : 'hover:text-white hover:bg-[#18181b]'
             }`}
           >
-            Career
+            <span>Career</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-[#71717a]" />}
           </button>
+
           <ChevronRight className="w-3.5 h-3.5 text-[#3f3f46]" />
+
+          {/* Skills */}
           <button
             id="nav-link-skills"
-            onClick={() => onNavigate(hasSelectedCareer ? 'skills-setup' : 'career-select')}
-            className={`px-2.5 py-1 rounded-lg transition-colors ${
-              state.currentView === 'skills-setup'
+            onClick={() => handleProtectedNavigate(hasSelectedCareer ? 'skills-setup' : 'career-select')}
+            title={!isAuthenticated ? 'Sign in to access Skills setup' : 'Select skills'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+              !isAuthenticated
+                ? 'opacity-65 hover:opacity-100 hover:text-white cursor-pointer'
+                : state.currentView === 'skills-setup'
                 ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
                 : 'hover:text-white hover:bg-[#18181b]'
             }`}
           >
-            Skills
+            <span>Skills</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-[#71717a]" />}
           </button>
+
           <ChevronRight className="w-3.5 h-3.5 text-[#3f3f46]" />
+
+          {/* Gap Analysis */}
           <button
             id="nav-link-gap"
-            onClick={() => onNavigate(hasSelectedCareer ? 'skill-gap' : 'career-select')}
-            className={`px-2.5 py-1 rounded-lg transition-colors ${
-              state.currentView === 'skill-gap'
+            onClick={() => handleProtectedNavigate(hasSelectedCareer ? 'skill-gap' : 'career-select')}
+            title={!isAuthenticated ? 'Sign in to access Gap Analysis' : 'Analyze skill gaps'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+              !isAuthenticated
+                ? 'opacity-65 hover:opacity-100 hover:text-white cursor-pointer'
+                : state.currentView === 'skill-gap'
                 ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
                 : 'hover:text-white hover:bg-[#18181b]'
             }`}
           >
-            Gap Analysis
+            <span>Gap Analysis</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-[#71717a]" />}
           </button>
+
           <ChevronRight className="w-3.5 h-3.5 text-[#3f3f46]" />
+
+          {/* Roadmap */}
           <button
             id="nav-link-roadmap"
-            onClick={() => onNavigate(hasSelectedCareer ? 'roadmap' : 'career-select')}
-            className={`px-2.5 py-1 rounded-lg transition-colors ${
-              state.currentView === 'roadmap'
+            onClick={() => handleProtectedNavigate(hasSelectedCareer ? 'roadmap' : 'career-select')}
+            title={!isAuthenticated ? 'Sign in to access Learning Roadmap' : 'Personalized learning roadmap'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+              !isAuthenticated
+                ? 'opacity-65 hover:opacity-100 hover:text-white cursor-pointer'
+                : state.currentView === 'roadmap'
                 ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
                 : 'hover:text-white hover:bg-[#18181b]'
             }`}
           >
-            Roadmap
+            <span>Roadmap</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-[#71717a]" />}
           </button>
+
           <ChevronRight className="w-3.5 h-3.5 text-[#3f3f46]" />
+
+          {/* Progress Track (Distinct dedicated page!) */}
           <button
             id="nav-link-progress-track"
-            onClick={() => onNavigate(hasSelectedCareer ? 'dashboard' : 'career-select')}
-            className={`px-2.5 py-1 rounded-lg transition-colors ${
-              state.currentView === 'dashboard'
+            onClick={() => handleProtectedNavigate(hasSelectedCareer ? 'progress-track' : 'career-select')}
+            title={!isAuthenticated ? 'Sign in to access Progress Track' : 'Milestone progress tracker'}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+              !isAuthenticated
+                ? 'opacity-65 hover:opacity-100 hover:text-white cursor-pointer'
+                : state.currentView === 'progress-track'
                 ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
                 : 'hover:text-white hover:bg-[#18181b]'
             }`}
           >
-            Progress Track
+            <span>Progress Track</span>
+            {!isAuthenticated && <Lock className="w-3 h-3 text-[#71717a]" />}
           </button>
         </nav>
 
         {/* Actions + Hamburger Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {hasRoadmap && (
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Theme Balancing Button */}
+          <ThemeToggle />
+
+          {/* My Dashboard Shortcut Button */}
+          {isAuthenticated && hasRoadmap && (
             <button
               id="nav-dashboard-shortcut"
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => handleProtectedNavigate('dashboard')}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                 state.currentView === 'dashboard'
                   ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20'
@@ -155,6 +233,7 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
             </button>
           )}
 
+          {/* Load Sample Demo Button */}
           {!hasRoadmap && (
             <button
               id="nav-load-sample-btn"
@@ -163,11 +242,11 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>Load Sample</span>
+              <span className="hidden sm:inline">Load Sample</span>
             </button>
           )}
 
-          {hasSelectedCareer && (
+          {isAuthenticated && hasSelectedCareer && (
             <button
               id="nav-reset-button"
               onClick={onReset}
@@ -215,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
                 }
                 onNavigate('auth');
               }}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-colors"
             >
               <User className="w-3.5 h-3.5 text-blue-400" />
               <span>Sign In</span>
@@ -240,200 +319,271 @@ export const Navbar: React.FC<NavbarProps> = ({ state, onNavigate, onReset, onLo
         </div>
       </div>
 
+      {/* Floating Auth Notification if non-logged in user clicked a locked feature */}
+      <AnimatePresence>
+        {authAlertMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="w-full bg-blue-600/90 text-white text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 shadow-lg"
+          >
+            <Lock className="w-3.5 h-3.5 text-blue-200" />
+            <span>{authAlertMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile and Tablet Navigation Drawer */}
-      {isMobileMenuOpen && (
-        <div
-          id="mobile-navigation-drawer"
-          className="lg:hidden border-t border-[#27272a] bg-[#0c0c0e]/98 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
-            {/* Account Status in Drawer */}
-            {state.currentUser ? (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#18181b] border border-[#27272a]">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-400 font-bold flex items-center justify-center text-xs shrink-0">
-                    {state.currentUser.name.charAt(0).toUpperCase()}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            id="mobile-navigation-drawer"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden border-t border-[#27272a] bg-[#0c0c0e]/98 backdrop-blur-xl overflow-hidden"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
+              {/* Account Status in Drawer */}
+              {state.currentUser ? (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#18181b] border border-[#27272a]">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-400 font-bold flex items-center justify-center text-xs shrink-0">
+                      {state.currentUser.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white truncate">{state.currentUser.name}</div>
+                      <div className="text-[11px] text-[#a1a1aa] truncate">{state.currentUser.email}</div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-white truncate">{state.currentUser.name}</div>
-                    <div className="text-[11px] text-[#a1a1aa] truncate">{state.currentUser.email}</div>
-                  </div>
+                  {onLogout && (
+                    <button
+                      onClick={() => {
+                        onLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="px-2.5 py-1 text-xs font-medium text-rose-400 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition-colors shrink-0 ml-2"
+                    >
+                      Log Out
+                    </button>
+                  )}
                 </div>
-                {onLogout && (
+              ) : (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#18181b] border border-[#27272a] gap-2">
+                  <div className="min-w-0">
+                    <span className="text-xs font-semibold text-white block">Student Portal</span>
+                    <span className="text-[11px] text-[#a1a1aa] block truncate">
+                      Sign in to access features and save roadmaps
+                    </span>
+                  </div>
                   <button
                     onClick={() => {
-                      onLogout();
+                      setIsMobileMenuOpen(false);
+                      if (state.currentView === 'landing') {
+                        const el = document.getElementById('auth-section');
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth' });
+                          return;
+                        }
+                      }
+                      onNavigate('auth');
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shrink-0 shadow-sm"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
+
+              {/* Active Career Indicator (if chosen) */}
+              {hasSelectedCareer && (
+                <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#18181b] border border-[#27272a] text-xs">
+                  <div className="flex items-center gap-2 text-[#a1a1aa]">
+                    <GraduationCap className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="text-[#71717a]">Target:</span>
+                    <span className="font-semibold text-white capitalize">
+                      {state.selectedCareerId?.replace(/-/g, ' ')}
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    Active
+                  </span>
+                </div>
+              )}
+
+              {/* Navigation links */}
+              <nav className="flex flex-col space-y-1">
+                <button
+                  id="mobile-nav-career"
+                  onClick={() => handleMobileNavClick('career-select')}
+                  className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    !isAuthenticated
+                      ? 'opacity-60 text-[#a1a1aa] hover:text-white'
+                      : state.currentView === 'career-select'
+                      ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                      : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="w-4 h-4 text-blue-400" />
+                    <span>Career</span>
+                  </div>
+                  {!isAuthenticated ? (
+                    <Lock className="w-3.5 h-3.5 text-[#71717a]" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  )}
+                </button>
+
+                <button
+                  id="mobile-nav-skills"
+                  onClick={() => handleMobileNavClick(hasSelectedCareer ? 'skills-setup' : 'career-select')}
+                  className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    !isAuthenticated
+                      ? 'opacity-60 text-[#a1a1aa] hover:text-white'
+                      : state.currentView === 'skills-setup'
+                      ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                      : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <SplitSquareVertical className="w-4 h-4 text-cyan-400" />
+                    <span>Skills</span>
+                  </div>
+                  {!isAuthenticated ? (
+                    <Lock className="w-3.5 h-3.5 text-[#71717a]" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  )}
+                </button>
+
+                <button
+                  id="mobile-nav-gap"
+                  onClick={() => handleMobileNavClick(hasSelectedCareer ? 'skill-gap' : 'career-select')}
+                  className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    !isAuthenticated
+                      ? 'opacity-60 text-[#a1a1aa] hover:text-white'
+                      : state.currentView === 'skill-gap'
+                      ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                      : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Target className="w-4 h-4 text-amber-400" />
+                    <span>Gap Analysis</span>
+                  </div>
+                  {!isAuthenticated ? (
+                    <Lock className="w-3.5 h-3.5 text-[#71717a]" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  )}
+                </button>
+
+                <button
+                  id="mobile-nav-roadmap"
+                  onClick={() => handleMobileNavClick(hasSelectedCareer ? 'roadmap' : 'career-select')}
+                  className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    !isAuthenticated
+                      ? 'opacity-60 text-[#a1a1aa] hover:text-white'
+                      : state.currentView === 'roadmap'
+                      ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                      : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Map className="w-4 h-4 text-purple-400" />
+                    <span>Roadmap</span>
+                  </div>
+                  {!isAuthenticated ? (
+                    <Lock className="w-3.5 h-3.5 text-[#71717a]" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  )}
+                </button>
+
+                <button
+                  id="mobile-nav-progress-track"
+                  onClick={() => handleMobileNavClick(hasSelectedCareer ? 'progress-track' : 'career-select')}
+                  className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    !isAuthenticated
+                      ? 'opacity-60 text-[#a1a1aa] hover:text-white'
+                      : state.currentView === 'progress-track'
+                      ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                      : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <LineChart className="w-4 h-4 text-emerald-400" />
+                    <span>Progress Track</span>
+                  </div>
+                  {!isAuthenticated ? (
+                    <Lock className="w-3.5 h-3.5 text-[#71717a]" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  )}
+                </button>
+
+                {isAuthenticated && (
+                  <button
+                    id="mobile-nav-dashboard"
+                    onClick={() => handleMobileNavClick('dashboard')}
+                    className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      state.currentView === 'dashboard'
+                        ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
+                        : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <LayoutDashboard className="w-4 h-4 text-blue-400" />
+                      <span>My Dashboard</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#52525b]" />
+                  </button>
+                )}
+              </nav>
+
+              {/* Quick Actions inside mobile/tablet drawer */}
+              <div className="pt-3 border-t border-[#27272a] flex items-center justify-between gap-2.5">
+                {isAuthenticated && hasRoadmap ? (
+                  <button
+                    onClick={() => handleMobileNavClick('dashboard')}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Dashboard</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      onLoadDemo();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="px-2.5 py-1 text-xs font-medium text-rose-400 hover:bg-rose-500/10 rounded-lg border border-rose-500/20 transition-colors shrink-0 ml-2"
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-xs font-semibold transition-all"
                   >
-                    Log Out
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Load Sample</span>
+                  </button>
+                )}
+
+                {hasSelectedCareer && (
+                  <button
+                    onClick={() => {
+                      onReset();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium text-[#a1a1aa] hover:text-rose-400 hover:bg-rose-500/10 border border-[#27272a] hover:border-rose-500/20 transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset</span>
                   </button>
                 )}
               </div>
-            ) : (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#18181b] border border-[#27272a] gap-2">
-                <div className="min-w-0">
-                  <span className="text-xs font-semibold text-white block">Student Portal</span>
-                  <span className="text-[11px] text-[#a1a1aa] block truncate">Sign in to save roadmaps & progress</span>
-                </div>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    if (state.currentView === 'landing') {
-                      const el = document.getElementById('auth-section');
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth' });
-                        return;
-                      }
-                    }
-                    onNavigate('auth');
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shrink-0 shadow-sm"
-                >
-                  Sign In
-                </button>
-              </div>
-            )}
-
-            {/* Active Career Indicator (if chosen) */}
-            {hasSelectedCareer && (
-              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#18181b] border border-[#27272a] text-xs">
-                <div className="flex items-center gap-2 text-[#a1a1aa]">
-                  <GraduationCap className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span className="text-[#71717a]">Target:</span>
-                  <span className="font-semibold text-white capitalize">
-                    {state.selectedCareerId?.replace(/-/g, ' ')}
-                  </span>
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  Active
-                </span>
-              </div>
-            )}
-
-            {/* Navigation links */}
-            <nav className="flex flex-col space-y-1">
-              <button
-                id="mobile-nav-career"
-                onClick={() => handleMobileNavClick('career-select')}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  state.currentView === 'career-select'
-                    ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
-                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Briefcase className="w-4 h-4 text-blue-400" />
-                  <span>Career</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#52525b]" />
-              </button>
-
-              <button
-                id="mobile-nav-skills"
-                onClick={() => handleMobileNavClick(hasSelectedCareer ? 'skills-setup' : 'career-select')}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  state.currentView === 'skills-setup'
-                    ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
-                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <SplitSquareVertical className="w-4 h-4 text-cyan-400" />
-                  <span>Skills</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#52525b]" />
-              </button>
-
-              <button
-                id="mobile-nav-gap"
-                onClick={() => handleMobileNavClick(hasSelectedCareer ? 'skill-gap' : 'career-select')}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  state.currentView === 'skill-gap'
-                    ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
-                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Target className="w-4 h-4 text-amber-400" />
-                  <span>Gap Analysis</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#52525b]" />
-              </button>
-
-              <button
-                id="mobile-nav-roadmap"
-                onClick={() => handleMobileNavClick(hasSelectedCareer ? 'roadmap' : 'career-select')}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  state.currentView === 'roadmap'
-                    ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
-                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Map className="w-4 h-4 text-purple-400" />
-                  <span>Roadmap</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#52525b]" />
-              </button>
-
-              <button
-                id="mobile-nav-progress-track"
-                onClick={() => handleMobileNavClick(hasSelectedCareer ? 'dashboard' : 'career-select')}
-                className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  state.currentView === 'dashboard'
-                    ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30 font-semibold'
-                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <LayoutDashboard className="w-4 h-4 text-emerald-400" />
-                  <span>Progress Track</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#52525b]" />
-              </button>
-            </nav>
-
-            {/* Quick Actions inside mobile/tablet drawer */}
-            <div className="pt-3 border-t border-[#27272a] flex items-center justify-between gap-2.5">
-              {hasRoadmap ? (
-                <button
-                  onClick={() => handleMobileNavClick('dashboard')}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  <span>My Dashboard</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    onLoadDemo();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-xs font-semibold transition-all"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Load Sample</span>
-                </button>
-              )}
-
-              {hasSelectedCareer && (
-                <button
-                  onClick={() => {
-                    onReset();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium text-[#a1a1aa] hover:text-rose-400 hover:bg-rose-500/10 border border-[#27272a] hover:border-rose-500/20 transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset</span>
-                </button>
-              )}
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

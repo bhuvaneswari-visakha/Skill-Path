@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, Target, Sparkles, Compass, AlertCircle, TrendingUp, Layers, Check, LogIn, UserCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Target, Sparkles, Compass, AlertCircle, TrendingUp, Layers, Check, LogIn, UserCheck, Lock } from 'lucide-react';
 import { CAREERS } from '../data/careers';
 import { SkillPathLogo } from './SkillPathLogo';
 import { AuthSection } from './AuthSection';
@@ -27,6 +27,14 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleProtectedStart = () => {
+    if (!currentUser) {
+      scrollToAuth();
+      return;
+    }
+    onStart();
   };
 
   return (
@@ -67,10 +75,11 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full max-w-xl">
               <button
                 id="hero-cta-button"
-                onClick={onStart}
+                onClick={handleProtectedStart}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/25 active:scale-95 transition-all"
               >
-                <span>Build My SkillPath</span>
+                {!currentUser && <Lock className="w-4 h-4 text-blue-200" />}
+                <span>{currentUser ? 'Build My SkillPath' : 'Sign In to Build SkillPath'}</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
@@ -303,10 +312,11 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </p>
           <div className="mt-8">
             <button
-              onClick={onStart}
+              onClick={handleProtectedStart}
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-base font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-600/25 active:scale-95 transition-all"
             >
-              <span>Build My SkillPath Now</span>
+              {!currentUser && <Lock className="w-4 h-4 text-blue-200" />}
+              <span>{currentUser ? 'Build My SkillPath Now' : 'Sign In to Build SkillPath'}</span>
               <ArrowRight className="w-5 h-5 text-white" />
             </button>
           </div>
