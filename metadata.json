@@ -1,0 +1,6 @@
+{
+  "name": "SkillPath",
+  "description": "Know what to learn. Know what comes next. Career skill gap analyzer, personalized learning roadmaps, and progress tracking for students and entry-level job seekers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

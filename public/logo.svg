@@ -1,0 +1,254 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#0c1026" />
+      <stop offset="70%" stop-color="#05060b" />
+      <stop offset="100%" stop-color="#020204" />
+    </radialGradient>
+
+    <!-- Outer Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="35%" stop-color="#3b82f6" />
+      <stop offset="70%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+
+    <!-- 3D Road Gradients -->
+    <linearGradient id="roadBaseGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="40%" stop-color="#2563eb" />
+      <stop offset="70%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <linearGradient id="roadSurfaceGrad" x1="10%" y1="90%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#00a8ff" />
+      <stop offset="25%" stop-color="#0284c7" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="75%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+
+    <linearGradient id="roadUnderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#2e1065" />
+    </linearGradient>
+
+    <!-- Text Gradients -->
+    <linearGradient id="pathTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="50%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#e879f9" />
+    </linearGradient>
+
+    <!-- Cap Rays Glow -->
+    <linearGradient id="rayGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fef08a" />
+    </linearGradient>
+
+    <!-- Student Figure Gradient -->
+    <linearGradient id="figureGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base Badge Background -->
+  <circle cx="300" cy="300" r="280" fill="url(#bgGlow)" />
+  <!-- Glowing Outer Ring -->
+  <circle cx="300" cy="300" r="280" fill="none" stroke="url(#ringGrad)" stroke-width="8" opacity="0.95" />
+
+  <!-- Road Under-curl Shadow & Volume (Behind) -->
+  <path
+    d="M 190 200 C 170 230, 200 270, 260 295 C 320 320, 380 345, 390 380 C 370 385, 340 370, 290 340 C 230 305, 175 260, 190 200 Z"
+    fill="url(#roadUnderGrad)"
+    opacity="0.8"
+  />
+
+  <!-- Main 3D S-Curve Highway -->
+  <!-- Upper ribbon segment -->
+  <path
+    d="M 330 155 C 290 140, 200 135, 190 195 C 180 250, 260 270, 310 300 C 370 335, 410 370, 380 410 C 350 420, 260 410, 160 380 C 240 375, 295 345, 275 315 C 245 270, 170 255, 195 180 C 220 120, 320 135, 365 160 Z"
+    fill="url(#roadBaseGrad)"
+  />
+
+  <!-- High-vibrancy top road ribbon -->
+  <path
+    d="M 345 160 C 300 142, 215 136, 198 188 C 180 242, 260 268, 315 298 C 375 332, 400 365, 375 405 C 340 415, 255 400, 160 380 C 220 365, 275 340, 265 310 C 245 270, 185 245, 202 185 C 220 135, 305 142, 345 160 Z"
+    fill="url(#roadSurfaceGrad)"
+  />
+
+  <!-- Road dashed line (Center Guideline) -->
+  <path
+    d="M 180 375 C 245 355, 290 325, 280 295 C 265 260, 205 235, 215 180 C 225 145, 290 145, 340 160"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="5"
+    stroke-dasharray="16 14"
+    stroke-linecap="round"
+    opacity="0.95"
+  />
+
+  <!-- Ascending Bar Chart Columns (Right of Road) -->
+  <g id="chart-bars">
+    <!-- Bar 1: Violet/Magenta -->
+    <rect x="340" y="245" width="16" height="32" rx="8" fill="#a855f7" />
+    <!-- Bar 2: Cyan -->
+    <rect x="362" y="230" width="16" height="47" rx="8" fill="#06b6d4" />
+    <!-- Bar 3: Mint/Teal -->
+    <rect x="384" y="210" width="16" height="67" rx="8" fill="#10b981" />
+    <!-- Bar 4: Orange/Amber -->
+    <rect x="406" y="190" width="16" height="87" rx="8" fill="#f97316" />
+  </g>
+
+  <!-- Golden Light Rays above Graduation Cap -->
+  <g id="cap-rays" stroke="url(#rayGrad)" stroke-width="6" stroke-linecap="round">
+    <!-- Left ray -->
+    <line x1="325" y1="90" x2="310" y2="70" />
+    <!-- Center ray -->
+    <line x1="365" y1="80" x2="365" y2="55" />
+    <!-- Right ray -->
+    <line x1="405" y1="90" x2="420" y2="70" />
+  </g>
+
+  <!-- Graduation Cap (Mortarboard) -->
+  <g id="graduation-cap" transform="translate(15, -10)">
+    <!-- Skull Cap Base -->
+    <path
+      d="M 330 135 Q 350 155 370 135 L 370 148 Q 350 168 330 148 Z"
+      fill="#1e3a8a"
+    />
+    <!-- Diamond Mortarboard Top -->
+    <polygon
+      points="350,92 425,122 350,152 275,122"
+      fill="#2563eb"
+      stroke="#60a5fa"
+      stroke-width="3"
+      stroke-linejoin="round"
+    />
+    <polygon
+      points="350,96 418,122 350,148 282,122"
+      fill="#1d4ed8"
+    />
+    <!-- Button Center -->
+    <circle cx="350" cy="122" r="4.5" fill="#93c5fd" />
+    <!-- Tassel -->
+    <path
+      d="M 350 122 Q 395 130 405 145 L 405 175"
+      fill="none"
+      stroke="#38bdf8"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+    <!-- Tassel Fringe Knot -->
+    <rect x="402" y="170" width="6" height="12" rx="3" fill="#38bdf8" />
+  </g>
+
+  <!-- Student / Person Climbing Road (Left Side) -->
+  <g id="student-climber" transform="translate(15, 10)">
+    <!-- Head -->
+    <circle cx="185" cy="260" r="13" fill="#38bdf8" />
+    
+    <!-- Torso (leaning upward) -->
+    <line x1="185" y1="272" x2="175" y2="305" stroke="#38bdf8" stroke-width="9" stroke-linecap="round" />
+
+    <!-- Backpack -->
+    <rect
+      x="152"
+      y="270"
+      width="16"
+      height="26"
+      rx="7"
+      fill="#0284c7"
+      stroke="#38bdf8"
+      stroke-width="2"
+      transform="rotate(-15 160 283)"
+    />
+
+    <!-- Front Climbing Leg (bent high) -->
+    <path
+      d="M 175 305 L 195 315 L 195 342"
+      fill="none"
+      stroke="#38bdf8"
+      stroke-width="8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Back Leg (pushing off) -->
+    <path
+      d="M 175 305 L 155 330 L 145 355"
+      fill="none"
+      stroke="#38bdf8"
+      stroke-width="8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Arm (reaching forward/up) -->
+    <path
+      d="M 183 280 L 205 292 L 215 290"
+      fill="none"
+      stroke="#38bdf8"
+      stroke-width="7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <!-- Logo Typography (SkillPath) -->
+  <g id="brand-typography">
+    <!-- "Skill" in pure crisp white with cyan play-button in the letter 'i' -->
+    <text
+      x="105"
+      y="470"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      font-size="76"
+      font-weight="900"
+      letter-spacing="-1.5"
+      fill="#ffffff"
+    >
+      Sk<tspan fill="#ffffff">i</tspan>ll
+    </text>
+
+    <!-- Play triangle accent on the 'i' of Skill -->
+    <polygon points="214,420 227,428 214,436" fill="#00c8ff" />
+
+    <!-- "Path" in rich glowing purple gradient -->
+    <text
+      x="272"
+      y="470"
+      font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      font-size="76"
+      font-weight="900"
+      letter-spacing="-1.5"
+      fill="url(#pathTextGrad)"
+    >
+      Path
+    </text>
+
+    <!-- Subtitle / Tagline: Learn • Grow • Get Job-Ready -->
+    <g transform="translate(0, 505)">
+      <text
+        x="300"
+        y="0"
+        text-anchor="middle"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="20"
+        font-weight="600"
+        letter-spacing="0.5"
+        fill="#ffffff"
+      >
+        <tspan fill="#ffffff">Learn</tspan>
+        <tspan dx="12" fill="#00e5ff" font-size="24">•</tspan>
+        <tspan dx="12" fill="#ffffff">Grow</tspan>
+        <tspan dx="12" fill="#c084fc" font-size="24">•</tspan>
+        <tspan dx="12" fill="#ffffff">Get Job-Ready</tspan>
+      </text>
+    </g>
+  </g>
+</svg>
